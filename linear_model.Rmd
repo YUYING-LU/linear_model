@@ -1,0 +1,262 @@
+---
+title: "linear model"
+author: "Yuying Lu"
+date: "2024-11-07"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+```
+
+
+
+```{r}
+library(tidyverse)
+library(p8105.datasets)
+
+set.seed(1)
+
+```
+
+```{r}
+data("nyc_airbnb")
+
+nyc_airbnb = 
+  nyc_airbnb |> 
+  mutate(stars = review_scores_location / 2) |> 
+  rename(
+    borough = neighbourhood_group,
+    neighborhood = neighbourhood) |> 
+  filter(borough != "Staten Island") |> 
+  select(price, stars, borough, neighborhood, room_type)
+
+# new mutate() at about 10:25 go back to see
+
+nyc_airbnb
+```
+
+## Fit some models
+
+Start relatively simple.
+
+```{r}
+fit = lm(price ~ stars, data = nyc_airbnb)
+fit
+names(fit)
+```
+
+```{r}
+summary(fit)
+names(summary(fit))
+```
+
+```{r}
+coef(fit)
+```
+
+
+```{r}
+fit |> 
+  broom::tidy() |> 
+  select(term, estimate, p.value)
+```
+
+```{r}
+fit |> 
+  broom::glance()
+```
+
+Try a bit more complex.
+
+
+```{r}
+fit = lm(price ~ stars + borough, data = nyc_airbnb)
+
+fit |> 
+  broom::tidy() |> 
+  select(term, estimate, p.value) |> 
+  mutate(
+    term = str_replace(term, "borough", "Borough: ")
+  ) |> 
+  knitr::kable(digits = 3)
+```
+
+## Some diagnostics
+
+(backtrack to some EDA)
+
+
+
+Most diago
+
+```{r}
+modelr::add_residuals(nyc_airbnb, fit) |> 
+  ggplot(aes(x = borough, y = resid))+
+  geom_violin() +
+  ylim(-200,500)
+```
+
+```{r}
+modelr::add_residuals(nyc_airbnb, fit) |> 
+  ggplot(aes(x = borough, y = resid))+
+  geom_point() +
+  ylim(-200,500)
+```
+
+Residuals against fitted values
+
+```{r}
+nyc_airbnb |> 
+  modelr::add_residuals(fit) |> 
+  modelr::add_predictions(fit) |> 
+  ggplot(aes(x = pred, y = resid))+
+  geom_point()
+```
+
+for single coefficient
+
+```{r}
+fit = lm(price ~ stars + borough, data = nyc_airbnb)
+
+fit |> 
+  broom::tidy()
+```
+
+When adding more than one coefficient, use `anova`
+
+```{r}
+fit_null = lm(price ~ stars + borough, data = nyc_airbnb)
+fit_alt = lm(price ~ stars + borough + room_type, data = nyc_airbnb)
+
+
+fit_null |> 
+  broom::tidy()
+
+fit_alt |> 
+  broom::tidy()
+```
+
+
+
+```{r}
+anova(fit_null, fit_alt) |> 
+  broom::tidy()
+```
+
+
+## Do effects differ across boroughs
+
+
+First, use a lot of interactions 
+
+```{r}
+nyc_airbnb |> 
+  lm(price ~ stars * borough + room_type * borough, data = _) |> 
+  broom::tidy()
+```
+
+
+Could just fit separate models
+
+```{r}
+nyc_airbnb |> 
+  filter(borough == "Manhattan") |> 
+  lm(price ~ stars + room_type, data = _) |> 
+  broom::tidy()
+```
+
+
+```{r}
+nyc_airbnb |> 
+  filter(borough == "Brooklyn") |> 
+  lm(price ~ stars + room_type, data = _) |> 
+  broom::tidy()
+```
+
+Get fancy and use list columns
+
+```{r}
+nyc_airbnb |> 
+  nest(data = -borough) |> 
+  mutate(
+    model = map(data, \(x) lm(price ~ stars + room_type, data = x)),
+    results = map(model, broom::tidy)
+  ) |> 
+  select(borough, results) |> 
+  unnest(results) |> 
+  select(borough, term, estimate) |> 
+  pivot_wider(
+    names_from = term,
+    values_from = estimate
+  )
+```
+
+what about room types across manhattan neighborhood
+
+```{r}
+nyc_airbnb |> 
+  filter(borough == "Manhattan",
+         neighborhood == "Chinatown") |> 
+  lm(price ~ stars + room_type, data = _) |> 
+  broom::tidy()
+```
+
+
+Let's do this for all neighborhood
+
+
+```{r}
+manhattan_neighborhood_fit_df = 
+  nyc_airbnb |> 
+  filter(borough == "Manhattan") |> 
+  nest(data = -(borough:neighborhood)) |> 
+  mutate(
+    model = map(data, \(x) lm(price ~ stars + room_type, data = x)),
+    results = map(model, broom::tidy)
+  ) |> 
+  select(neighborhood, results) |> 
+  unnest(results)
+```
+
+Look at the effect of room type
+
+```{r}
+manhattan_neighborhood_fit_df |> 
+  filter(str_detect(term, "room_type")) |> 
+  ggplot(aes(x = term, y = estimate)) +
+  geom_boxplot()
+  
+```
+
+
+```{r}
+nyc_airbnb |> 
+  filter(
+    neighborhood == "NoHo",
+    room_type == "Shared room"
+  )
+```
+
+
+
