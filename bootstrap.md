@@ -66,8 +66,8 @@ sim_df_constant |>
 
 | term        | estimate | std.error | statistic | p.value |
 |:------------|---------:|----------:|----------:|--------:|
-| (Intercept) |    1.959 |     0.086 |    22.722 |       0 |
-| x           |    2.965 |     0.064 |    46.304 |       0 |
+| (Intercept) |    1.915 |     0.094 |    20.344 |       0 |
+| x           |    3.119 |     0.065 |    47.921 |       0 |
 
 ``` r
 sim_df_nonconstant |> 
@@ -78,8 +78,8 @@ sim_df_nonconstant |>
 
 | term        | estimate | std.error | statistic | p.value |
 |:------------|---------:|----------:|----------:|--------:|
-| (Intercept) |    2.081 |     0.082 |    25.319 |       0 |
-| x           |    2.830 |     0.061 |    46.359 |       0 |
+| (Intercept) |    2.033 |     0.106 |    19.224 |       0 |
+| x           |    3.078 |     0.073 |    42.096 |       0 |
 
 Never trust p-value is the bottom line here
 
@@ -117,8 +117,8 @@ sim_df_nonconstant |>
 
 | term        | estimate | std.error | statistic | p.value |
 |:------------|---------:|----------:|----------:|--------:|
-| (Intercept) |    2.124 |     0.084 |    25.220 |       0 |
-| x           |    2.820 |     0.060 |    46.755 |       0 |
+| (Intercept) |    2.008 |     0.096 |    20.917 |       0 |
+| x           |    3.093 |     0.068 |    45.187 |       0 |
 
 ## bootstrap A LOT
 
@@ -137,18 +137,18 @@ boot_straps |> unnest(strap_sample)
 ```
 
     ## # A tibble: 2,500 × 6
-    ##    strap_number     x   error     y models results         
-    ##           <int> <dbl>   <dbl> <dbl> <list> <list>          
-    ##  1            1 2.00   0.821   8.81 <lm>   <tibble [2 × 5]>
-    ##  2            1 2.00   0.821   8.81 <lm>   <tibble [2 × 5]>
-    ##  3            1 0.527 -0.0731  3.51 <lm>   <tibble [2 × 5]>
-    ##  4            1 0.809  0.607   5.03 <lm>   <tibble [2 × 5]>
-    ##  5            1 1.90  -0.610   7.09 <lm>   <tibble [2 × 5]>
-    ##  6            1 1.27  -0.469   5.34 <lm>   <tibble [2 × 5]>
-    ##  7            1 0.479  0.0735  3.51 <lm>   <tibble [2 × 5]>
-    ##  8            1 1.13   0.467   5.85 <lm>   <tibble [2 × 5]>
-    ##  9            1 1.31  -0.972   4.95 <lm>   <tibble [2 × 5]>
-    ## 10            1 1.50   0.531   7.04 <lm>   <tibble [2 × 5]>
+    ##    strap_number      x   error     y models results         
+    ##           <int>  <dbl>   <dbl> <dbl> <list> <list>          
+    ##  1            1  1.41   1.02   7.25  <lm>   <tibble [2 × 5]>
+    ##  2            1  1.76  -0.642  6.65  <lm>   <tibble [2 × 5]>
+    ##  3            1  0.910  0.169  4.90  <lm>   <tibble [2 × 5]>
+    ##  4            1  2.34   0.313  9.34  <lm>   <tibble [2 × 5]>
+    ##  5            1  2.49   0.0279 9.50  <lm>   <tibble [2 × 5]>
+    ##  6            1  0.309 -0.0513 2.87  <lm>   <tibble [2 × 5]>
+    ##  7            1  1.41   1.02   7.25  <lm>   <tibble [2 × 5]>
+    ##  8            1  0.699 -0.348  3.75  <lm>   <tibble [2 × 5]>
+    ##  9            1  1.19  -0.607  4.97  <lm>   <tibble [2 × 5]>
+    ## 10            1 -0.614  0.574  0.731 <lm>   <tibble [2 × 5]>
     ## # ℹ 2,490 more rows
 
 ``` r
@@ -165,8 +165,8 @@ boot_strap_results
 
 | term        | boot_se |
 |:------------|--------:|
-| (Intercept) |   0.050 |
-| x           |   0.067 |
+| (Intercept) |   0.072 |
+| x           |   0.131 |
 
 compare ti with our initial result:
 
@@ -179,8 +179,8 @@ sim_df_nonconstant |>
 
 | term        | estimate | std.error | statistic | p.value |
 |:------------|---------:|----------:|----------:|--------:|
-| (Intercept) |    2.081 |     0.082 |    25.319 |       0 |
-| x           |    2.830 |     0.061 |    46.359 |       0 |
+| (Intercept) |    2.033 |     0.106 |    19.224 |       0 |
+| x           |    3.078 |     0.073 |    42.096 |       0 |
 
 ``` r
 boot_straps = 
@@ -209,8 +209,8 @@ sim_df_constant |>
 
 | term        | estimate | std.error | statistic | p.value |
 |:------------|---------:|----------:|----------:|--------:|
-| (Intercept) |    1.959 |     0.086 |    22.722 |       0 |
-| x           |    2.965 |     0.064 |    46.304 |       0 |
+| (Intercept) |    1.915 |     0.094 |    20.344 |       0 |
+| x           |    3.119 |     0.065 |    47.921 |       0 |
 
 ## do this all using modelr
 
@@ -243,8 +243,8 @@ boot_straps |>
     ## # A tibble: 2 × 5
     ##   term        boot_est boot_se boot_ci_ll boot_ci_ul
     ##   <chr>          <dbl>   <dbl>      <dbl>      <dbl>
-    ## 1 (Intercept)     2.08  0.0477       1.98       2.17
-    ## 2 x               2.83  0.0782       2.68       2.99
+    ## 1 (Intercept)     2.03  0.0648       1.89       2.15
+    ## 2 x               3.08  0.0947       2.90       3.27
 
 ## Air BNB
 
@@ -313,5 +313,5 @@ boot_straps |>
     ## # A tibble: 2 × 5
     ##   term        boot_est boot_se boot_ci_ll boot_ci_ul
     ##   <chr>          <dbl>   <dbl>      <dbl>      <dbl>
-    ## 1 (Intercept)     2.08  0.0477       1.98       2.17
-    ## 2 x               2.83  0.0782       2.68       2.99
+    ## 1 (Intercept)     2.03  0.0648       1.89       2.15
+    ## 2 x               3.08  0.0947       2.90       3.27
